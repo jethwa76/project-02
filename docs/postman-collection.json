@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "Stellar CRM API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Harsh Kumar\",\n  \"email\": \"harsh@example.com\",\n  \"password\": \"Password1\",\n  \"role\": \"admin\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"harsh@example.com\",\n  \"password\": \"Password1\"\n}"
+        }
+      }
+    },
+    {
+      "name": "List Items",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/items"
+      }
+    },
+    {
+      "name": "Create Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{baseUrl}}/items",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Atlas rollout\",\n  \"company\": \"Acme Inc\",\n  \"value\": 45000,\n  \"status\": \"qualified\",\n  \"priority\": \"high\",\n  \"tags\": [\"cloud\"]\n}"
+        }
+      }
+    }
+  ]
+}

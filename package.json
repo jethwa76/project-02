@@ -1,0 +1,20 @@
+{
+  "name": "stellar-crm-saas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready full-stack SaaS CRM internship project with React, Express, MongoDB, JWT auth, Swagger, testing, and deployment configs.",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace backend\" \"npm run dev --workspace client\"",
+    "install:all": "npm install --workspaces",
+    "build": "npm run build --workspace client",
+    "test": "npm test --workspace backend && npm test --workspace client",
+    "lint": "npm run lint --workspaces"
+  },
+  "workspaces": [
+    "backend",
+    "client"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
