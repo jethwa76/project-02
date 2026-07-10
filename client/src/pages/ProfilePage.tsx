@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Camera, Check, KeyRound, Loader2, UserRound } from 'lucide-react';
+import { useState } from 'react';
+import { Check, KeyRound, Loader2, UserRound } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
@@ -7,13 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import * as profileService from '../services/profile';
 
 export function ProfilePage() {
-  const { user, signIn } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Avatar upload state
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
-  const [avatarMsg, setAvatarMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { user, updateUser } = useAuth();
 
   // Profile form state
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -27,35 +21,13 @@ export function ProfilePage() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setAvatarMsg(null);
-    setAvatarUploading(true);
-    try {
-      const updatedUser = await profileService.uploadAvatar(file);
-      setAvatarUrl(updatedUser.avatarUrl || '');
-      setAvatarMsg({ type: 'success', text: 'Avatar uploaded successfully!' });
-    } catch (error) {
-      setAvatarMsg({ type: 'error', text: error instanceof Error ? error.message : 'Upload failed' });
-    } finally {
-      setAvatarUploading(false);
-      // Reset file input so the same file can be re-selected
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setProfileMsg(null);
     setProfileSaving(true);
     try {
-      await profileService.updateProfile({ name: profileName, email: profileEmail });
+      const updatedUser = await profileService.updateProfile({ name: profileName, email: profileEmail });
+      updateUser(updatedUser);
       setProfileMsg({ type: 'success', text: 'Profile updated successfully!' });
     } catch (error) {
       setProfileMsg({ type: 'error', text: error instanceof Error ? error.message : 'Update failed' });
@@ -94,54 +66,19 @@ export function ProfilePage() {
     }
   };
 
-  const displayAvatarUrl = avatarUrl || user?.avatarUrl || '';
-
   return (
     <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
       <Card>
         <div className="flex items-center gap-4">
-          {fullAvatarUrl ? (
-            <img
-              src={fullAvatarUrl}
-              alt={user?.name}
-              className="h-20 w-20 rounded-lg object-cover"
-            />
-          ) : (
-            <div className="grid h-20 w-20 place-items-center rounded-lg bg-cyan-600 text-2xl font-black text-white">
-              {user?.name.slice(0, 2).toUpperCase()}
-            </div>
-          )}
+          <div className="grid h-20 w-20 place-items-center rounded-lg bg-cyan-600 text-2xl font-black text-white">
+            {user?.name.slice(0, 2).toUpperCase()}
+          </div>
           <div>
             <h2 className="text-2xl font-bold dark:text-white">{user?.name}</h2>
             <p className="text-sm text-slate-500">{user?.email}</p>
             <span className="mt-2 inline-block rounded-full bg-cyan-50 px-3 py-1 text-xs font-bold text-cyan-700 dark:bg-cyan-950 dark:text-cyan-200">{user?.role}</span>
           </div>
         </div>
-
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleAvatarChange}
-        />
-
-        <Button
-          className="mt-6 w-full bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100"
-          onClick={handleAvatarClick}
-          disabled={avatarUploading}
-        >
-          {avatarUploading ? <Loader2 size={18} className="animate-spin" /> : <Camera size={18} />}
-          {avatarUploading ? 'Uploading...' : 'Upload avatar'}
-        </Button>
-
-        {avatarMsg && (
-          <p className={`mt-2 text-sm ${avatarMsg.type === 'success' ? 'text-emerald-600' : 'text-rose-500'}`}>
-            {avatarMsg.type === 'success' && <Check size={14} className="mr-1 inline" />}
-            {avatarMsg.text}
-          </p>
-        )}
       </Card>
 
       <Card className="grid gap-6">

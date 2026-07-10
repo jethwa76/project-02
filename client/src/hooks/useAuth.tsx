@@ -8,6 +8,7 @@ interface AuthContextValue {
   signIn: (payload: { email: string; password: string }) => Promise<void>;
   signUp: (payload: { name: string; email: string; password: string; role?: string }) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -42,6 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await authService.logout().catch(() => undefined);
         localStorage.removeItem('stellar_access_token');
         setUser(null);
+      },
+      updateUser: (newUser: User) => {
+        setUser(newUser);
       }
     }),
     [loading, user]
