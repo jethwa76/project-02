@@ -2,6 +2,7 @@ import { User } from '../models/user.model.js';
 import { ApiError } from '../utils/api-error.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { logActivity } from '../services/activity.service.js';
+import cloudinary from '../config/cloudinary.js';
 
 export const getProfile = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { user: req.user } });
@@ -37,7 +38,27 @@ export const uploadAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(422, 'Avatar image is required');
   }
 
-  const avatarUrl = `/uploads/${req.file.filename}`;
+  // Upload to Cloudinary from memory buffer
+  const result = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'stellar-crm/avatars',
+        public_id: `user-${req.user._id}`,
+        overwrite: true,
+        transformation: [
+          { width: 300, height: 300, crop: 'fill', gravity: 'face' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ]
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      }
+    );
+    stream.end(req.file.buffer);
+  });
+
+  const avatarUrl = result.secure_url;
   const user = await User.findByIdAndUpdate(req.user._id, { avatarUrl }, { new: true });
   await logActivity(req.user._id, 'uploaded avatar', 'user', req.user._id);
   res.json({ success: true, data: { user } });

@@ -94,8 +94,7 @@ export function ProfilePage() {
     }
   };
 
-  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-  const fullAvatarUrl = avatarUrl ? (avatarUrl.startsWith('http') ? avatarUrl : `${apiBase.replace('/api', '')}${avatarUrl}`) : '';
+  const displayAvatarUrl = avatarUrl || user?.avatarUrl || '';
 
   return (
     <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">

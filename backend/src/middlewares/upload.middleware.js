@@ -1,13 +1,8 @@
 import multer from 'multer';
 import { ApiError } from '../utils/api-error.js';
 
-const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (_req, file, cb) => {
-    const safeName = `${Date.now()}-${file.originalname.replace(/[^a-z0-9.]/gi, '-')}`;
-    cb(null, safeName);
-  }
-});
+// Use memory storage so the file buffer can be sent to Cloudinary
+const storage = multer.memoryStorage();
 
 export const uploadAvatar = multer({
   storage,
